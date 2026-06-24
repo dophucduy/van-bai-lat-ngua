@@ -1,3 +1,6 @@
+import { useMemo } from "react";
+import { storyData } from "../data/story";
+
 interface HomeScreenProps {
   onStart: () => void;
 }
@@ -10,9 +13,19 @@ const STATS_PREVIEW = [
 ];
 
 export function HomeScreen({ onStart }: HomeScreenProps) {
+  // Derive counts from story data so UI keeps in sync if Dev 1 extends it.
+  const { stepCount, endingCount, estMinutes } = useMemo(() => {
+    const narrativeNodes = storyData.nodes.filter((n) => !n.id.startsWith("ending-"));
+    const stepNums = narrativeNodes.map((n) => n.step);
+    const steps = stepNums.length ? Math.max(...stepNums) : 0;
+    const endings = storyData.endings.length;
+    // Rough estimate: ~1.2 min per step (read + decide). Adjust if needed.
+    const minutes = Math.max(2, Math.round(steps * 1.2));
+    return { stepCount: steps, endingCount: endings, estMinutes: minutes };
+  }, []);
+
   return (
     <div className="home-stage">
-      {/* Decorative background rays */}
       <div className="home-rays" aria-hidden="true" />
 
       <div className="home-card">
@@ -46,10 +59,10 @@ export function HomeScreen({ onStart }: HomeScreenProps) {
         <p className="home-subtitle">Gig-FOMO &amp; Cái Bẫy Thuật Toán</p>
 
         <p className="home-lead">
-          Bạn vừa tốt nghiệp. Trong túi còn 5 triệu. Mạng xã hội đang gào lên rằng ai cũng giàu,
-          ai cũng tự do, ai cũng đang vượt mặt bạn.
+          Bạn vừa tốt nghiệp. Trong túi còn {storyData.initialStats.money} triệu. Mạng xã hội đang gào lên rằng
+          ai cũng giàu, ai cũng tự do, ai cũng đang vượt mặt bạn.
           <br />
-          Hãy thử chơi 5 lượt bài — rồi xem ai mới thực sự đang nắm chuôi dao.
+          Hãy thử chơi {stepCount} lượt bài — rồi xem ai mới thực sự đang nắm chuôi dao.
         </p>
 
         <div className="home-stats-preview" aria-label="Bốn chỉ số bạn sẽ theo dõi">
@@ -71,11 +84,11 @@ export function HomeScreen({ onStart }: HomeScreenProps) {
         </button>
 
         <div className="home-meta">
-          <span>5 lựa chọn</span>
+          <span>{stepCount} lựa chọn</span>
           <span aria-hidden="true">·</span>
-          <span>3 kết cục</span>
+          <span>{endingCount} kết cục</span>
           <span aria-hidden="true">·</span>
-          <span>~ 6 phút / ván</span>
+          <span>~ {estMinutes} phút / ván</span>
         </div>
 
         <div className="home-quote">

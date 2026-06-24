@@ -374,6 +374,12 @@ button { font-family: inherit; }
 .choice:nth-child(1) { animation-delay: 0.05s; }
 .choice:nth-child(2) { animation-delay: 0.18s; }
 .choice:nth-child(3) { animation-delay: 0.31s; }
+.choice:nth-child(4) { animation-delay: 0.44s; }
+.choice:nth-child(5) { animation-delay: 0.57s; }
+.choice:nth-child(6) { animation-delay: 0.70s; }
+.choice:nth-child(7) { animation-delay: 0.83s; }
+.choice:nth-child(8) { animation-delay: 0.96s; }
+.choice:nth-child(n+9) { animation-delay: 1.05s; }
 @keyframes choiceIn {
   to { opacity: 1; transform: translateY(0); }
 }
