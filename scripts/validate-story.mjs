@@ -11,11 +11,12 @@ const nodeIds = new Set(storyData.nodes.map((node) => node.id));
 const endingIds = new Set(storyData.endings.map((ending) => ending.id));
 const validNextIds = new Set([...nodeIds, ...endingIds]);
 const validChoicePaths = [
-  ["A", "A1", "HEAL", "X"],
-  ["A", "A1", "GRIND", "Y"],
-  ["A", "A2", "HEAL", "Y"],
-  ["B", "B1", "GRIND", "X"],
-  ["B", "B2", "HEAL", "Y"]
+  ["A", "A1", "C1", "X", "REVEAL"],
+  ["A", "A1", "C1", "Y", "REVEAL"],
+  ["A", "A2", "C2", "Y", "REVEAL"],
+  ["B", "B1", "S1", "X", "REVEAL"],
+  ["B", "B1", "S1", "Y", "REVEAL"],
+  ["B", "B2", "S2", "Y", "REVEAL"]
 ];
 
 assert.equal(storyData.initialNodeId, "step-1", "Initial node should be step-1.");
@@ -25,6 +26,10 @@ for (const node of storyData.nodes) {
   assert.ok(node.id, "Every node must have an id.");
   assert.ok(node.title, `Node ${node.id} must have a title.`);
   assert.ok(node.body, `Node ${node.id} must have body text.`);
+  assert.ok(node.visual, `Node ${node.id} must have a motion visual.`);
+  assert.ok(node.visual.kind, `Node ${node.id} visual must have a kind.`);
+  assert.ok(node.visual.title, `Node ${node.id} visual must have a title.`);
+  assert.ok(node.visual.caption, `Node ${node.id} visual must have a caption.`);
 
   for (const choice of node.choices) {
     assert.ok(choice.code, `Choice in ${node.id} must have a code.`);
@@ -44,12 +49,12 @@ for (const path of validChoicePaths) {
   assert.ok(endingIds.has(endingId), `Path ${path.join(" -> ")} resolved to missing ending ${endingId}.`);
 }
 
-assert.equal(resolveEnding(["A", "A1", "GRIND", "Y"]), "ending-1");
-assert.equal(resolveEnding(["B", "B1", "HEAL", "Y"]), "ending-1");
-assert.equal(resolveEnding(["A", "A2", "HEAL", "Y"]), "ending-2");
-assert.equal(resolveEnding(["B", "B2", "GRIND", "Y"]), "ending-2");
-assert.equal(resolveEnding(["A", "A1", "HEAL", "X"]), "ending-3");
-assert.equal(resolveEnding(["B", "B1", "GRIND", "X"]), "ending-3");
+assert.equal(resolveEnding(["A", "A1", "C1", "Y"]), "ending-1");
+assert.equal(resolveEnding(["B", "B1", "S1", "Y"]), "ending-1");
+assert.equal(resolveEnding(["A", "A2", "C2", "Y"]), "ending-2");
+assert.equal(resolveEnding(["B", "B2", "S2", "Y"]), "ending-2");
+assert.equal(resolveEnding(["A", "A1", "C1", "X"]), "ending-3");
+assert.equal(resolveEnding(["B", "B1", "S1", "X"]), "ending-3");
 
 console.log("Story validation passed.");
 
@@ -58,7 +63,13 @@ function resolveEnding(selectedChoices) {
     return "ending-3";
   }
 
-  if (selectedChoices.includes("A1") || selectedChoices.includes("B1")) {
+  const choseHighExtractionPath =
+    selectedChoices.includes("A1") ||
+    selectedChoices.includes("B1") ||
+    selectedChoices.includes("C1") ||
+    selectedChoices.includes("S1");
+
+  if (selectedChoices.includes("Y") && choseHighExtractionPath) {
     return "ending-1";
   }
 

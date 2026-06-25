@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type { Choice, StoryNode } from "../game/types";
 import { useTypewriter } from "../hooks/useTypewriter";
 import { ChoiceButton } from "./ChoiceButton";
+import { MotionScene } from "./MotionScene";
 
 interface StoryPanelProps {
   node: StoryNode;
@@ -30,6 +31,8 @@ export function StoryPanel({ node, totalSteps, onChoose }: StoryPanelProps) {
         <span>Chương: {node.id}</span>
       </div>
       <h2 className="story-title">{node.title}</h2>
+
+      <MotionScene visual={node.visual} />
 
       <p className="story-body">
         {output}

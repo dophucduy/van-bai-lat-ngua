@@ -65,6 +65,8 @@ export function HomeScreen({ onStart }: HomeScreenProps) {
           Hãy thử chơi {stepCount} lượt bài — rồi xem ai mới thực sự đang nắm chuôi dao.
         </p>
 
+        <ArchiveReel />
+
         <div className="home-stats-preview" aria-label="Bốn chỉ số bạn sẽ theo dõi">
           {STATS_PREVIEW.map((s) => (
             <div className="home-stat" key={s.key}>
@@ -99,5 +101,55 @@ export function HomeScreen({ onStart }: HomeScreenProps) {
         </div>
       </div>
     </div>
+  );
+}
+
+function ArchiveReel() {
+  return (
+    <section className="archive-reel" aria-label="Tư liệu mở màn: từ bao cấp đến nền tảng số">
+      <div className="reel-screen">
+        <div className="film-strip" aria-hidden="true">
+          {Array.from({ length: 10 }).map((_, index) => (
+            <span key={index} />
+          ))}
+        </div>
+
+        <div className="archive-frame">
+          <div className="archive-year">1976-1986</div>
+          <div className="archive-scene bao-cap">
+            <span className="coupon">TEM PHIẾU</span>
+            <span className="counter">MẬU DỊCH</span>
+            <span className="queue q1" />
+            <span className="queue q2" />
+            <span className="queue q3" />
+          </div>
+          <p>Bao cấp: hàng hóa được phân phối bằng tem phiếu, thị trường bị kiểm soát chặt.</p>
+        </div>
+
+        <div className="archive-frame">
+          <div className="archive-year">1986</div>
+          <div className="archive-scene doi-moi">
+            <span className="gate left" />
+            <span className="gate right" />
+            <span className="market-sign">ĐỔI MỚI</span>
+            <span className="rice-sack">GẠO</span>
+            <span className="shop">CHỢ</span>
+          </div>
+          <p>Đổi Mới: thị trường, giá cả, tư nhân và lưu thông hàng hóa dần được mở rộng.</p>
+        </div>
+
+        <div className="archive-frame">
+          <div className="archive-year">HIỆN NAY</div>
+          <div className="archive-scene platform">
+            <span className="phone">APP</span>
+            <span className="coin c1" />
+            <span className="coin c2" />
+            <span className="coin c3" />
+            <span className="flow-line" />
+          </div>
+          <p>Trong kinh tế nền tảng, giá trị thặng dư đổi mặt nạ: lợi nhuận, lãi suất, địa tô và phí trung gian.</p>
+        </div>
+      </div>
+    </section>
   );
 }

@@ -53,7 +53,7 @@ export function choose(storyData: StoryData, state: GameState, choiceCode: Choic
   const selectedChoices = [...state.selectedChoices, selectedChoice.code];
   const stats = applyStatDelta(state.stats, selectedChoice.statDelta);
 
-  if (selectedChoice.nextNodeId === "step-5") {
+  if (currentNode.id === "step-5") {
     const endingId = resolveEnding(selectedChoices);
     const ending = getRequiredEnding(storyData, endingId);
 
@@ -92,7 +92,13 @@ export function resolveEnding(selectedChoices: ChoiceCode[]): EndingId {
     return "ending-3";
   }
 
-  if (selectedChoices.includes("A1") || selectedChoices.includes("B1")) {
+  const choseHighExtractionPath =
+    selectedChoices.includes("A1") ||
+    selectedChoices.includes("B1") ||
+    selectedChoices.includes("C1") ||
+    selectedChoices.includes("S1");
+
+  if (selectedChoices.includes("Y") && choseHighExtractionPath) {
     return "ending-1";
   }
 
