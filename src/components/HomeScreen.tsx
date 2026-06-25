@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { type CSSProperties, useMemo, useState } from "react";
 import { storyData } from "../data/story";
 
 interface HomeScreenProps {
@@ -13,6 +13,8 @@ const STATS_PREVIEW = [
 ];
 
 export function HomeScreen({ onStart }: HomeScreenProps) {
+  const [showArchive, setShowArchive] = useState(false);
+
   // Derive counts from story data so UI keeps in sync if Dev 1 extends it.
   const { stepCount, endingCount, estMinutes } = useMemo(() => {
     const narrativeNodes = storyData.nodes.filter((n) => !n.id.startsWith("ending-"));
@@ -65,7 +67,7 @@ export function HomeScreen({ onStart }: HomeScreenProps) {
           Hãy thử chơi {stepCount} lượt bài — rồi xem ai mới thực sự đang nắm chuôi dao.
         </p>
 
-        <ArchiveReel />
+        <ArchiveReel onOpen={() => setShowArchive(true)} />
 
         <div className="home-stats-preview" aria-label="Bốn chỉ số bạn sẽ theo dõi">
           {STATS_PREVIEW.map((s) => (
@@ -100,13 +102,19 @@ export function HomeScreen({ onStart }: HomeScreenProps) {
           <small>— Tuyên ngôn của Đảng Cộng sản, 1848</small>
         </div>
       </div>
+
+      {showArchive && <ArchiveModal onClose={() => setShowArchive(false)} />}
     </div>
   );
 }
 
-function ArchiveReel() {
+function ArchiveReel({ onOpen }: { onOpen: () => void }) {
   return (
     <section className="archive-reel" aria-label="Tư liệu mở màn: từ bao cấp đến nền tảng số">
+      <button type="button" className="archive-open" onClick={onOpen}>
+        Xem tư liệu 60s
+      </button>
+
       <div className="reel-screen">
         <div className="film-strip" aria-hidden="true">
           {Array.from({ length: 10 }).map((_, index) => (
@@ -151,5 +159,78 @@ function ArchiveReel() {
         </div>
       </div>
     </section>
+  );
+}
+
+function ArchiveModal({ onClose }: { onClose: () => void }) {
+  return (
+    <div className="archive-modal" role="dialog" aria-modal="true" aria-label="Tư liệu 60 giây">
+      <div className="archive-modal-card">
+        <header className="archive-modal-header">
+          <div>
+            <span>Tư liệu 60s</span>
+            <h2>Từ bao cấp đến kinh tế nền tảng</h2>
+          </div>
+          <button type="button" className="archive-close" onClick={onClose} aria-label="Đóng tư liệu">
+            ×
+          </button>
+        </header>
+
+        <div className="archive-long-reel">
+          {[
+            {
+              year: "1976-1986",
+              title: "Cơ chế bao cấp",
+              text: "Hàng hóa khan hiếm, phân phối bằng tem phiếu, giá cả không vận động như thị trường.",
+              tag: "Phân phối"
+            },
+            {
+              year: "1986",
+              title: "Đổi Mới",
+              text: "Việt Nam mở rộng lưu thông hàng hóa, thừa nhận nhiều thành phần kinh tế và vai trò của thị trường.",
+              tag: "Thị trường"
+            },
+            {
+              year: "1990s",
+              title: "Sản xuất và thương nghiệp",
+              text: "Hàng hóa lưu thông mạnh hơn. Giá trị thặng dư bắt đầu hiện ra rõ qua lợi nhuận và lợi nhuận thương nghiệp.",
+              tag: "Lợi nhuận"
+            },
+            {
+              year: "2000s",
+              title: "Tín dụng và tiêu dùng",
+              text: "Vay, trả góp, lãi suất và chi phí tái sản xuất sức lao động trở thành một phần đời sống kinh tế.",
+              tag: "Lãi suất"
+            },
+            {
+              year: "2010s",
+              title: "Mặt bằng số",
+              text: "Vị trí trên sàn, feed, quảng cáo và dữ liệu người dùng tạo ra một dạng địa tô mới.",
+              tag: "Địa tô"
+            },
+            {
+              year: "Hiện nay",
+              title: "Nền tảng và thuật toán",
+              text: "App điều phối lao động, chia phí, đặt thưởng, gom đơn và biến giá trị thặng dư thành nhiều mặt nạ khó nhận ra.",
+              tag: "Thuật toán"
+            }
+          ].map((item, index) => (
+            <article className="archive-chapter" key={item.year} style={{ "--i": index } as CSSProperties}>
+              <span className="chapter-year">{item.year}</span>
+              <strong>{item.title}</strong>
+              <p>{item.text}</p>
+              <em>{item.tag}</em>
+            </article>
+          ))}
+        </div>
+
+        <footer className="archive-modal-footer">
+          <span>Ý chính: thị trường không làm giá trị thặng dư biến mất, mà làm nó xuất hiện dưới nhiều hình thức.</span>
+          <button type="button" className="btn btn-primary" onClick={onClose}>
+            Vào game
+          </button>
+        </footer>
+      </div>
+    </div>
   );
 }
