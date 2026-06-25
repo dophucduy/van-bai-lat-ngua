@@ -1,4 +1,4 @@
-import { type CSSProperties, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { storyData } from "../data/story";
 
 interface HomeScreenProps {
@@ -11,6 +11,54 @@ const STATS_PREVIEW = [
   { key: "flexing", label: "Flexing", desc: "Vốn xã hội ảo trên nền tảng",          color: "var(--c-stat-flexing)" },
   { key: "skill",   label: "Kỹ năng", desc: "Giá trị sức lao động được nâng cấp",   color: "var(--c-stat-skill)" }
 ];
+
+const ARCHIVE_VIDEO_SCENES = [
+  {
+    year: "1976-1986",
+    title: "Cơ chế bao cấp",
+    text: "Hàng hóa khan hiếm, phân phối bằng tem phiếu, giá cả không vận động như thị trường.",
+    tag: "Phân phối",
+    scene: "bao-cap"
+  },
+  {
+    year: "1986",
+    title: "Đổi Mới",
+    text: "Việt Nam mở rộng lưu thông hàng hóa, thừa nhận nhiều thành phần kinh tế và vai trò của thị trường.",
+    tag: "Thị trường",
+    scene: "doi-moi"
+  },
+  {
+    year: "1990s",
+    title: "Sản xuất và thương nghiệp",
+    text: "Hàng hóa lưu thông mạnh hơn. Giá trị thặng dư bắt đầu hiện ra rõ qua lợi nhuận và lợi nhuận thương nghiệp.",
+    tag: "Lợi nhuận",
+    scene: "factory"
+  },
+  {
+    year: "2000s",
+    title: "Tín dụng và tiêu dùng",
+    text: "Vay, trả góp, lãi suất và chi phí tái sản xuất sức lao động trở thành một phần đời sống kinh tế.",
+    tag: "Lãi suất",
+    scene: "credit"
+  },
+  {
+    year: "2010s",
+    title: "Mặt bằng số",
+    text: "Vị trí trên sàn, feed, quảng cáo và dữ liệu người dùng tạo ra một dạng địa tô mới.",
+    tag: "Địa tô",
+    scene: "digital-rent"
+  },
+  {
+    year: "Hiện nay",
+    title: "Nền tảng và thuật toán",
+    text: "App điều phối lao động, chia phí, đặt thưởng, gom đơn và biến giá trị thặng dư thành nhiều mặt nạ khó nhận ra.",
+    tag: "Thuật toán",
+    scene: "platform"
+  }
+];
+
+const ARCHIVE_SCENE_SECONDS = 10;
+const ARCHIVE_TOTAL_SECONDS = ARCHIVE_VIDEO_SCENES.length * ARCHIVE_SCENE_SECONDS;
 
 export function HomeScreen({ onStart }: HomeScreenProps) {
   const [showArchive, setShowArchive] = useState(false);
@@ -163,6 +211,43 @@ function ArchiveReel({ onOpen }: { onOpen: () => void }) {
 }
 
 function ArchiveModal({ onClose }: { onClose: () => void }) {
+  const [elapsed, setElapsed] = useState(0);
+  const [playing, setPlaying] = useState(true);
+  const sceneIndex = Math.min(
+    ARCHIVE_VIDEO_SCENES.length - 1,
+    Math.floor(elapsed / ARCHIVE_SCENE_SECONDS)
+  );
+  const scene = ARCHIVE_VIDEO_SCENES[sceneIndex];
+  const progress = (elapsed / ARCHIVE_TOTAL_SECONDS) * 100;
+  const sceneProgress = ((elapsed % ARCHIVE_SCENE_SECONDS) / ARCHIVE_SCENE_SECONDS) * 100;
+
+  useEffect(() => {
+    if (!playing) return undefined;
+
+    const timer = window.setInterval(() => {
+      setElapsed((current) => {
+        if (current >= ARCHIVE_TOTAL_SECONDS) {
+          window.clearInterval(timer);
+          return ARCHIVE_TOTAL_SECONDS;
+        }
+        return Math.min(ARCHIVE_TOTAL_SECONDS, current + 1);
+      });
+    }, 1000);
+
+    return () => window.clearInterval(timer);
+  }, [playing]);
+
+  useEffect(() => {
+    if (elapsed >= ARCHIVE_TOTAL_SECONDS) {
+      setPlaying(false);
+    }
+  }, [elapsed]);
+
+  const handleReplay = () => {
+    setElapsed(0);
+    setPlaying(true);
+  };
+
   return (
     <div className="archive-modal" role="dialog" aria-modal="true" aria-label="Tư liệu 60 giây">
       <div className="archive-modal-card">
@@ -176,52 +261,37 @@ function ArchiveModal({ onClose }: { onClose: () => void }) {
           </button>
         </header>
 
-        <div className="archive-long-reel">
-          {[
-            {
-              year: "1976-1986",
-              title: "Cơ chế bao cấp",
-              text: "Hàng hóa khan hiếm, phân phối bằng tem phiếu, giá cả không vận động như thị trường.",
-              tag: "Phân phối"
-            },
-            {
-              year: "1986",
-              title: "Đổi Mới",
-              text: "Việt Nam mở rộng lưu thông hàng hóa, thừa nhận nhiều thành phần kinh tế và vai trò của thị trường.",
-              tag: "Thị trường"
-            },
-            {
-              year: "1990s",
-              title: "Sản xuất và thương nghiệp",
-              text: "Hàng hóa lưu thông mạnh hơn. Giá trị thặng dư bắt đầu hiện ra rõ qua lợi nhuận và lợi nhuận thương nghiệp.",
-              tag: "Lợi nhuận"
-            },
-            {
-              year: "2000s",
-              title: "Tín dụng và tiêu dùng",
-              text: "Vay, trả góp, lãi suất và chi phí tái sản xuất sức lao động trở thành một phần đời sống kinh tế.",
-              tag: "Lãi suất"
-            },
-            {
-              year: "2010s",
-              title: "Mặt bằng số",
-              text: "Vị trí trên sàn, feed, quảng cáo và dữ liệu người dùng tạo ra một dạng địa tô mới.",
-              tag: "Địa tô"
-            },
-            {
-              year: "Hiện nay",
-              title: "Nền tảng và thuật toán",
-              text: "App điều phối lao động, chia phí, đặt thưởng, gom đơn và biến giá trị thặng dư thành nhiều mặt nạ khó nhận ra.",
-              tag: "Thuật toán"
-            }
-          ].map((item, index) => (
-            <article className="archive-chapter" key={item.year} style={{ "--i": index } as CSSProperties}>
-              <span className="chapter-year">{item.year}</span>
-              <strong>{item.title}</strong>
-              <p>{item.text}</p>
-              <em>{item.tag}</em>
-            </article>
-          ))}
+        <div className="archive-video-player">
+          <div className={`archive-video-screen scene-${scene.scene}`} key={scene.scene}>
+            <div className="video-noise" aria-hidden="true" />
+            <div className="video-timecode">{formatTime(elapsed)} / 01:00</div>
+            <ArchiveVideoScene scene={scene.scene} />
+            <div className="video-caption">
+              <span>{scene.year}</span>
+              <h3>{scene.title}</h3>
+              <p>{scene.text}</p>
+              <em>{scene.tag}</em>
+            </div>
+          </div>
+
+          <div className="archive-video-controls">
+            <button
+              type="button"
+              className="video-control"
+              onClick={() => setPlaying((current) => !current)}
+            >
+              {playing ? "Tạm dừng" : "Phát"}
+            </button>
+            <button type="button" className="video-control" onClick={handleReplay}>
+              Xem lại
+            </button>
+            <div className="video-progress" aria-label={`Tiến trình video ${Math.round(progress)}%`}>
+              <span style={{ width: `${progress}%` }} />
+            </div>
+            <div className="scene-progress">
+              <span style={{ width: `${sceneProgress}%` }} />
+            </div>
+          </div>
         </div>
 
         <footer className="archive-modal-footer">
@@ -233,4 +303,80 @@ function ArchiveModal({ onClose }: { onClose: () => void }) {
       </div>
     </div>
   );
+}
+
+function ArchiveVideoScene({ scene }: { scene: string }) {
+  if (scene === "bao-cap") {
+    return (
+      <div className="video-illustration bao-cap-video">
+        <span className="v-coupon">TEM PHIẾU</span>
+        <span className="v-counter">QUẦY MẬU DỊCH</span>
+        <span className="v-person p1" />
+        <span className="v-person p2" />
+        <span className="v-person p3" />
+      </div>
+    );
+  }
+
+  if (scene === "doi-moi") {
+    return (
+      <div className="video-illustration doi-moi-video">
+        <span className="v-gate left" />
+        <span className="v-gate right" />
+        <span className="v-market">ĐỔI MỚI 1986</span>
+        <span className="v-rice">GẠO</span>
+        <span className="v-shop">CHỢ</span>
+      </div>
+    );
+  }
+
+  if (scene === "factory") {
+    return (
+      <div className="video-illustration factory-video">
+        <span className="v-factory" />
+        <span className="v-worker">LĐ</span>
+        <span className="v-profit">LỢI NHUẬN</span>
+        <span className="v-goods g1" />
+        <span className="v-goods g2" />
+      </div>
+    );
+  }
+
+  if (scene === "credit") {
+    return (
+      <div className="video-illustration credit-video">
+        <span className="v-card">TRẢ GÓP</span>
+        <span className="v-interest">LÃI SUẤT</span>
+        <span className="v-phone-loan">ĐIỆN THOẠI</span>
+        <span className="v-debt-loop" />
+      </div>
+    );
+  }
+
+  if (scene === "digital-rent") {
+    return (
+      <div className="video-illustration digital-rent-video">
+        {["Feed", "Ad", "Data", "Reach", "Shop", "Địa tô"].map((item, index) => (
+          <span key={item} className={index === 5 ? "prime" : ""}>{item}</span>
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div className="video-illustration platform-video">
+      <span className="v-app">APP</span>
+      <span className="v-driver">TÀI XẾ</span>
+      <span className="v-ai">AI</span>
+      <span className="v-route" />
+      <span className="v-coin c1" />
+      <span className="v-coin c2" />
+      <span className="v-coin c3" />
+    </div>
+  );
+}
+
+function formatTime(seconds: number) {
+  const value = Math.min(ARCHIVE_TOTAL_SECONDS, seconds);
+  return `00:${String(value).padStart(2, "0")}`;
 }
